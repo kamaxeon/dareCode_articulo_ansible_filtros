@@ -1,0 +1,78 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    users:
+      - name: margaret
+        docker: true
+      - name: july
+        docker: true
+      - name: john
+        docker: false
+      - name: peter
+      - name: anthony
+      - name: mary
+    
+    common_users: "{{ users | map(attribute='name') | list }}"
+    
+    docker_users:  "{{ users |
+                       selectattr('docker', 'defined') |
+                       selectattr('docker', 'equalto', True) |
+                       map(attribute='name') |
+                       list }}"
+
+    jmespath_docker_users: "{{ users | json_query(\"[?docker]\") | map(attribute='name') | list }}"
+    
+    sudo_without_password_users:
+      - john
+      - peter
+    sudo_with_password_users:
+      - anthony
+
+    app_username: mary
+
+  tasks:
+    - name: Show common_users var
+      debug:
+        msg: "common_users: {{ common_users }}"
+  
+    - name: Checking common_users
+      assert:
+        that:
+          - common_users is defined
+          - common_users | length == 6
+        fail_msg: Not all the users are included
+
+    - name: Checking docker users
+      assert:
+        that: 
+          - docker_users is defined
+          - docker_users | length == 2
+          - '"margaret" in docker_users'
+          - '"july" in docker_users'
+          - docker_users == jmespath_docker_users
+        fail_msg: Margaret and July only should be in docker_users
+
+    - name: Checking sudo user without password
+      assert:
+        that: 
+          - sudo_without_password_users is defined
+          - sudo_without_password_users | length == 2
+          - '"john" in sudo_without_password_users'
+          - '"peter" in sudo_without_password_users'
+        fail_msg: John and Peter only should be in sudo_without_password_users
+
+    - name: Checking sudo user with password
+      assert:
+        that: 
+          - sudo_with_password_users is defined
+          - sudo_with_password_users | length == 1
+          - '"anthony" in sudo_with_password_users'
+        fail_msg: Anthony only should be in sudo_with_password_users
+
+    - name: Checking that Mary is the app user in the hosts
+      assert:
+        that:
+          - '"mary" == app_username'
+        fail_msg: Mary should be the user for the app
