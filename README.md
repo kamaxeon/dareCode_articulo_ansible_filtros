@@ -6,7 +6,15 @@ Es un artículo introductorio, pero se supone que sabes los conceptos de [playbo
 
 # Objetivo 
 
-Vamos a ver como los filtros de ansible nos pueden ayudar, a tener nuestro repositorio de ansible bajo control y evitando repeticiones inncesarias. 
+Vamos a ver como los filtros de ansible nos pueden ayudar a tener nuestro repositorio de ansible bajo control y evitando repeticiones inncesarias. 
+
+Para esto, vamos a poner un ejemplo de organización de variables en nuestro de repositorio de ansible.
+
+No olvidemos que nuestra automatización debe ser lo más descriptiva y clara posible, recuerda que "_un gran poder conlleva una gran responsabilidad_". 
+
+Sino lo hacemos así, nuestro amigo [Borat](https://twitter.com/devops_borat) vendrá tarde o temprano a visitarnos y nos contará algo como ..
+
+![Tweet DevOps Borat](img/borat_twitter.png)
 
 # Metodología 
 
@@ -508,7 +516,7 @@ Dejo como ejercicio del lector, hacer un test que compruebe esto. El fichero de 
 Aunque los tests nos ayudan, hay que tener cuidado, porque igual no tenemos todos los casos contemplados.
 
 
-## Quinta ejecución
+## Quinta iteración
 
 Ya nos va quedando menos, hemos aprendido a hacer un filtro para variables de tipo booleano, y nos hemos dado cuenta de algún fallo o feature, que lo hemos ajustado sobre la marcha.
 
@@ -649,7 +657,7 @@ localhost                  : ok=6    changed=0    unreachable=0    failed=0    s
 ```
 
 
-### Sexta ejecución
+### Sexta iteración
 
 En esta última ejecución, vamos a poner a abordar el caso de usuario que se usará para arrancar nuestra aplicación, ahora lo que queremos es un valor, no una lista de elementos, para eso vamos a usar un filtro que no acabará en lista, y cogeremos el primer valor positivo que nos encontremos. 
 
@@ -874,8 +882,7 @@ localhost                  : ok=6    changed=0    unreachable=0    failed=0    s
 ```
 # Recursos para aprender ansible
 
-Buenas, evidentemente hay muchos sitios para aprender ansible, y no los conozco, te recomiendo lo que conozco
-
+A continuación te expongo recursos de ansible que recomendaría:
 
 * [Documentación de ansible](https://docs.ansible.com/)
 * [Ansible for DevOps](https://www.ansiblefordevops.com/)
