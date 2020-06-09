@@ -13,17 +13,17 @@
       - name: peter
       - name: anthony
       - name: mary
-    
+
     common_users: "{{ users }}"
-    
+
     docker_users:  "{{ users |
                        selectattr('docker', 'defined') |
                        selectattr('docker', 'equalto', True) |
                        map(attribute='name') |
                        list }}"
 
-    jmespath_docker_users: "{{ users | json_query(\"[?docker]\") | map(attribute='name') | list }}"
-    
+    jmespath_docker_users: "{{ users | json_query('[?docker].name') }}"
+
     sudo_without_password_users:
       - john
       - peter
@@ -42,7 +42,7 @@
 
     - name: Checking docker users
       assert:
-        that: 
+        that:
           - docker_users is defined
           - docker_users | length == 2
           - '"margaret" in docker_users'
@@ -52,7 +52,7 @@
 
     - name: Checking sudo user without password
       assert:
-        that: 
+        that:
           - sudo_without_password_users is defined
           - sudo_without_password_users | length == 2
           - '"john" in sudo_without_password_users'
@@ -61,7 +61,7 @@
 
     - name: Checking sudo user with password
       assert:
-        that: 
+        that:
           - sudo_with_password_users is defined
           - sudo_with_password_users | length == 1
           - '"anthony" in sudo_with_password_users'
