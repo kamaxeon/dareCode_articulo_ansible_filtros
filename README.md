@@ -1,28 +1,27 @@
 # Introducción 
 
-Hola y bienvenido a este primer artículo donde hablaré un poco de ansible. Ansible es una herramienta de gestión de la configuración y orquestación desarrollado en python y que pertenece a RedHat.  
+Hola y bienvenido a este primer artículo donde hablaré un poco de ansible. [Ansible](https://www.ansible.com/) es una herramienta de gestión de la configuración y orquestación desarrollado en [python](https://www.python.org/) comprada hace un tiempo por [RedHat](https://www.redhat.com/).  
 
-Es un artículo introductorio, pero se supone que sabes los conceptos de playbook y roles. Si no los sabes, en este artículo te dejo una sección de enlaces para aprender ansible, o si lo prefieres escríbemos algún comentario e intentamos ayudarte 😛 
+Es un artículo introductorio, pero se supone que sabes los conceptos de [playbook](https://docs.ansible.com/ansible/latest/user_guide/playbooks.html) y [role](https://docs.ansible.com/ansible/latest/user_guide/playbooks_reuse_roles.html). Si no los sabes, en este artículo te dejo una sección de enlaces para aprender ansible, o si lo prefieres escríbemos algún comentario e intentamos ayudarte 😛 
 
 # Objetivo 
 
-Vamos a ver como los filtros de ansible nos pueden ayudar, teniendo nuestro repositorio de ansible bajo control y evitando repeticiones inncesarias. 
+Vamos a ver como los filtros de ansible nos pueden ayudar, a tener nuestro repositorio de ansible bajo control y evitando repeticiones inncesarias. 
 
 # Metodología 
 
-Vamos a intentar definir una serie de precondiciones descritas los más parecido en lenguaje natural, de manera que sea muy descriptivo para nosotros y nos valga como punto de partida. Así, si se nos complica la cosa, siempre tendremos claro cuales son nuestros objetivos para evitar desviarnos de ellos. 
+Vamos a intentar definir una serie de precondiciones descritas lo más parecido en lenguaje natural, de manera que sea muy descriptivo para nosotros y nos valga como punto de partida. Así, si se nos complica la cosa, siempre tendremos claro cuales son nuestros objetivos. 
 
-Además intenteremos hacerlo todo con pasitos pequeños (baby steps) para nos perder detalle.
+Además intenteremos hacerlo todo con pasitos pequeños (baby steps) para no perder detalle.
 
 # Punto de partida 
 
-Cuando desarrollamos cualquier roles, tenemos que hacerlo de la forma más desacoplada posible de una futura integración. Así tenemos nuestro role puede evolucionar de manera independiente. 
+Cuando desarrollamos cualquier role, tenemos que hacerlo de la forma más desacoplada posible de una futura integración. Así, nuestro role puede evolucionar de manera independiente.
 
-Vamos a poner un ejemplo, para eso, nos vamos a basar en una persona bastante respetada dentro de la comunidad de ansible, su nombre es Jeff Geerling (https://twitter.com/geerlingguy) y el repositorio es cuestión es este https://github.com/geerlingguy/ansible-role-docker 
+Vamos a poner un ejemplo, empecemos con un role de una persona bastante respetada dentro de la comunidad de ansible, su nombre es [Jeff Geerling](https://twitter.com/geerlingguy). El rol en particular, es su role de [docker](https://github.com/geerlingguy/ansible-role-docker).
 
 Entre sus variables, nos pide una lista de nombres de usuarios que serán añadidos dentro del grupo de docker para que puedan usar docker: 
 
- 
 ```yml
 docker_users:
   - user1
@@ -31,8 +30,7 @@ docker_users:
 
 En el contexto del role y su espacio de nombres, el nombre de la variable es perfecto. 
 
-También, vamos a suponer que tenemos otro role con nombre “sudo” que y nos ofrecen otras dos variables donde podemos poner nuestros usuario que queremos que puedan usar sudo (con o sin contraseña): 
-
+También, vamos a suponer que tenemos otro role con nombre “**_sudo_**” que y nos ofrecen otras dos variables donde podemos poner nuestros usuario que queremos que puedan usar sudo (con o sin contraseña): 
 
 ```yml
 sudo_with_password_users:
@@ -44,8 +42,7 @@ sudo_without_password_users:
 ```
  
 
-Por supuesto, tenemos un role o playbook que nos crea los usuarios de nuestros entornos, podemos tener algo como 
-
+Por supuesto, tenemos un role o playbook que nos crea los usuarios de nuestros entornos, podemos tener algo como:
 
 ```yml
 common_users: 
@@ -60,7 +57,7 @@ common_users:
 ```
  
 
-Para finalizar, tenemos el role de nuestra aplicación que nos va a jubilar del éxito, que necesita que le digamos el nombre del usuario que se usará para lanzarla. Ojo no es un lista, es un texto con el nombre del usuario, algo como 
+Para finalizar, tenemos el role de nuestra aplicación que nos va a jubilar del éxito, y necesita conocer el usuario que se usará para lanzar la aplicación. Ojo no es un lista, es un texto con el nombre del usuario, algo como:
 
 ```yml
 app_username: user3 
@@ -99,7 +96,7 @@ El usuario de nuestra aplicación es *mary*, y sólo puede existir uno.
 
 ## Definición de test en ansible 
 
-Antes de hacer nada, y como vimos al principio vamos a definirmos un playbook sencillo que contenga nuestros tests, y que por supuesto fallará de forma estrepitosa. Pero lo que quiero es tener de una forma descriptiva y primitiva el resultado final, el resultado lo tienes en [01_playbook](01_playbook.yml)
+Antes de hacer nada, y como hablamos al principio vamos a definirmos un playbook sencillo que contenga nuestros tests, y que por supuesto fallará de forma estrepitosa. Pero lo que quiero es tener de una forma descriptiva y primitiva el resultado final, el resultado lo tienes en [00_playbook.yml](00_playbook.yml)
 
 ```yml
 ---
@@ -162,7 +159,7 @@ Antes de hacer nada, y como vimos al principio vamos a definirmos un playbook se
 Si lo ejecutamos evidentemente fallaran todos los tests
 
 ```bash
-$ ansible-playbook 00_test.yml
+$ ansible-playbook 00_playbook.yml
 [WARNING]: provided hosts list is empty, only localhost is available. Note that the implicit localhost
 does not match 'all'
 
@@ -222,7 +219,7 @@ Aunque parezca que es perder el tiempo, ya tenemos bastante avanzado.
 
 ## Primera iteración sin filtros
 
-Ahora vamos a hacer que sólo funcione de una forma muy ruda y primitiva, funciona no será nuestra versión final. La versión es exactamente igual a la anterior, pero simplemente hemos rellenado las variables, ahora tienen esta pinta.
+Ahora vamos a hacer que sólo funcione de una forma muy ruda y primitiva, funciona no será nuestra versión final. La versión es exactamente igual a la anterior, pero simplemente hemos rellenado las variables, ahora tienen esta pinta:
 
 ```yml
   vars:
@@ -237,18 +234,23 @@ Ahora vamos a hacer que sólo funcione de una forma muy ruda y primitiva, funcio
       - margaret
       - july
     sudo_without_password_users:
+      - john
+      - peter
+    sudo_with_password_users:
+      - anthony
+    app_username: mary
 ```
 
-El fichero de este paso es [01_test.yml](01_test.yml)
+El fichero de este paso es [01_playbook.yml](01_playbook.yml)
 
 ### Conclusiones 
 
-Hay muchísima de repetición de nombres, y cara a futuro es poco mantenible y propenso a errores, podría por ejemplo escribir *margaret* en common_users y *margarit* en docker_users, empezando a tener esos errores que tan poco nos gusta. Además hay veces que son evidentes y otras no.
+Hay muchísima de repetición de nombres, y cara a futuro es poco mantenible y propenso a errores, podría por ejemplo escribir *margaret* en common_users y *margarit* en docker_users, empezando a tener esos errores que tan poco nos gustan. Además hay veces que son evidentes y otras no.
 
 ### Ejecución completa de este paso
 
 ```bash
-ansible-playbook 01_test.yml
+ansible-playbook 01_playbook.yml
 [WARNING]: provided hosts list is empty, only localhost is available. Note that the implicit localhost
 does not match 'all'
 
@@ -304,16 +306,16 @@ Ahora que tengo funcionando me planteo si toda esta parte que hace referencia a 
     common_users: "{{ users }}"
 ```
 
-Como siempre si quieres ver el fichero entero lo tienes en [02_test.yml](02_test.yml)
+Como siempre si quieres ver el fichero entero lo tienes en [02_playbook.yml](02_playbook.yml)
 
 ### Conclusiones
 
-Aunque este pequeño cambio, parece que no es nada, ya hemos creado nuestra estructura que contendrá al resto. Ya vamos por buen camino.
+Aunque este pequeño cambio, parece que no es nada, ya hemos creado nuestra estructura que contendrá al resto. Estamos en el buen camino.
 
 ### Ejecución completa de este paso
 
 ```bash
-$ ansible-playbook 02_test.yml
+$ ansible-playbook 02_playbook.yml
 [WARNING]: provided hosts list is empty, only localhost is available. Note that the implicit localhost
 does not match 'all'
 
@@ -355,14 +357,9 @@ localhost                  : ok=5    changed=0    unreachable=0    failed=0    s
 
 ## Tercera iteración.
 
-Aquí es realmente donde empezamos a usar filtros, vamos a intentar extraer los usuarios de nuestra estructura de usuarios *users*, para eso vamos a añadir la siguiente lógica. Añado un nuestro campo opcional, que sea con clave nombre y valor booleano. En caso de no poner el campo, se sobreentiende que no será un usuario que pueda ejecutar docker.
-
-Este paso vamos a hacerlo con filtros, y podemos hacerlo de dos formas distintas con [jmespath](https://jmespath.org/) (recuerda instalarlo) o sin él. Vamos a ver como quedaría primero la versión sin jmespath.
-
-
+Aquí es realmente donde empezamos a usar filtros, vamos a intentar extraer los usuarios de nuestra estructura de usuarios "**_users_**", para eso vamos a añadir la siguiente lógica. Añado un nuestro campo opcional, que sea con clave "**_docker_**" y valor booleano. En caso de no poner el campo, se sobreentiende que no será un usuario que pueda ejecutar docker. Es decir, podemos tener nuestra parte de users así:
 
 ```yml
-  vars:
     users:
       - name: margaret
         docker: true
@@ -373,7 +370,14 @@ Este paso vamos a hacerlo con filtros, y podemos hacerlo de dos formas distintas
       - name: peter
       - name: anthony
       - name: mary
-    
+```
+
+Este paso vamos a hacerlo con filtros, y podemos hacerlo de dos formas distintas con [jmespath](https://jmespath.org/) (recuerda instalarlo) o sin él. 
+
+### Filtro sin JMESPATH
+
+
+```yml
     docker_users:  "{{ users |
                        selectattr('docker', 'defined') |
                        selectattr('docker', 'equalto', True) |
@@ -385,27 +389,17 @@ El filtro básicamente de docker_users hace lo siguiente:
 
 * Recoge el listado de users, comprueba de cada elemento que tenga la clave docker definida, y después comprueba que sea igual a true. Posteriormente sólo se queda con el valor de la clave '*name*' de cada elemento y nos devuelve una lista.
 
-Veamos ahora el ejemplo como jmespath
+### Filtro con JMESPATH
 
 ```yml
-  vars:
-    users:
-      - name: margaret
-        docker: true
-      - name: july
-        docker: true
-      - name: john
-        docker: false
-      - name: peter
-      - name: anthony
-      - name: mary
-
     jmespath_docker_users: "{{ users | json_query(\"[?docker]\") | map(attribute='name') | list }}"
 ```
 
+### Adaptación de los TEST
+
 En este caso, vemos como ha quedado más claro con jmespath, pero lo importante es que el resultado sea el mismo. Como puede observar lo que extraigo con jmespath le puesto el prefijo jmespath, por lo que ahora debo modificar los tests para que comprueben ámbas variables.
 
-El test quedaría de la siguiente manera
+El test quedaría de la siguiente manera:
 
 ```yml
     - name: Checking docker users
@@ -421,7 +415,7 @@ El test quedaría de la siguiente manera
 
 De esta manera compruebo que ámbas contienen lo mismo en el último aserto.
 
-El fichero entero de esta iteración es [03_test.yml](03_test.yml)
+El fichero entero de esta iteración es [03_playbook.yml](03_playbook.yml)
 
 ### Conclusiones
 
@@ -430,7 +424,7 @@ Ya parece que esto empieza a coger forma, y estamos organizando las cosas.
 ### Ejecución completa de este paso
 
 ```bash
-$ ansible-playbook 04_test.yml
+$ ansible-playbook 04_playbook.yml
 [WARNING]: provided hosts list is empty, only localhost is available. Note that the implicit localhost
 does not match 'all'
 
@@ -473,7 +467,7 @@ localhost                  : ok=5    changed=0    unreachable=0    failed=0    s
 
 ## Cuarta iteración
 
-Aquí vamos a ejecutar un momento el módulo de debug de ansible, porque creo que estamos metiendo datos que no nos interesan o no eran los iniciales en nuestra variables common_users. Lo que ejecutaríamos tendríamos que escribir sería algo así en el playbook.
+Aquí vamos a ejecutar un momento el módulo de debug de ansible, porque creo que estamos metiendo datos que no nos interesan o no eran los iniciales en nuestra variables common_users. Lo que ejecutaríamos tendríamos que escribir sería algo así en el playbook (dentro de la sección de _tasks_):
 
 ```yml
     - name: Show common_users var
@@ -492,13 +486,13 @@ ok: [localhost] => {
 ....
 ```
 
-Estamos pasando todo los campos de users, cuando en nuestro ejemplo, sólo queremos pasar '*name*', igual es tu caso da igual, pero vamos a corregir *common_users* para que sólo muestre el atributo *name* como estaba originalmente. Nuestra variable quedaría así.
+Estamos pasando todo los campos de users, cuando en nuestro ejemplo, sólo queremos pasar "**_name_**", igual es tu caso da igual, pero vamos a corregir "**_common_users_**" para que sólo muestre el atributo "**_name_**" como estaba originalmente. Nuestra variable quedaría así.
 
 ```yml
     common_users: "{{ users | map(attribute='name') | list }}"
 ```
 
-Volvemos a ejecutar y vemos que ya tenemos nuestro problema arreglado.
+Volvemos a ejecutar y vemos que ya tenemos nuestro problema arreglado:
 
 ```bash
 TASK [Show common_users var] ****************************************************************************
@@ -507,11 +501,11 @@ ok: [localhost] => {
 }
 ```
 
-Dejo como ejercicio del lector, hacer un test que compruebe esto. El fichero de este paso es [04_test.yml](04_test.yml)
+Dejo como ejercicio del lector, hacer un test que compruebe esto. El fichero de este paso es [04_playbook.yml](04_playbook.yml)
 
 ### Conclusión
 
-Aunque los tests nos ayudam, ahi que tener cuidado, porque igual no tenemos todos los casos contemplados.
+Aunque los tests nos ayudan, hay que tener cuidado, porque igual no tenemos todos los casos contemplados.
 
 
 ## Quinta ejecución
@@ -520,11 +514,32 @@ Ya nos va quedando menos, hemos aprendido a hacer un filtro para variables de ti
 
 En esta ocasión, vamos a atacar el tema del sudo, en este caso, en este caso, vamos a suponer la siguiente lógica.
 
-* Creamos una clave en nuestra estructura de usuarios llamada sudo, que puede tener los siguientes valores *with_password*, *without_password*. Si contiene otra cosa o no tiene la clave, daremos por sentado que no usará sudo.
+* Creamos una clave en nuestra estructura de usuarios llamada "**_sudo_**", que puede tener los siguientes valores "_with_password_", "_without_password_". Si contiene otra cosa o no tiene la clave, daremos por sentado que no usará sudo.
+
+Nuestra variable users podría quedar de la siguiente manera:
+
+```yml
+  vars:
+    users:
+      - name: margaret
+        docker: true
+      - name: july
+        docker: true
+      - name: john
+        docker: false
+        sudo: without_password
+      - name: peter
+        sudo: without_password
+      - name: anthony
+        sudo: with_password
+      - name: mary
+```
 
 Como en la iteración tercera, vamos a hacerlo con y sin jmespath.
 
-Vamos a ver como quedaría la versión sin jmespath, para los dos grupos que debemos crear
+### Filtro sin JMESPATH
+
+Vamos a ver como quedaría la versión sin jmespath, para los dos grupos que debemos crear:
 
 ```yml
     sudo_without_password_users: "{{ users |
@@ -539,7 +554,9 @@ Vamos a ver como quedaría la versión sin jmespath, para los dos grupos que deb
                                      list }}"
 ```
 
-Ahora veamos el ejemplo con jmespath
+### Filtro con JMESPATH
+
+Ahora veamos el ejemplo con jmespath:
 
 ```yml
     jmespath_sudo_without_password_users: "{{ users |
@@ -553,7 +570,9 @@ Ahora veamos el ejemplo con jmespath
                                               list }}"
 ```
 
-Ahora sólo nos quedaría modificar un poco el test, para que compruebe que ámbas variables (con y sin jmespath son iguales)
+### Adaptación de los TEST
+
+Ahora sólo nos quedaría modificar un poco el test, para que compruebe que las dos variabels contienen lo mismo:
 
 ```yml
     - name: Checking sudo user without password
@@ -576,7 +595,7 @@ Ahora sólo nos quedaría modificar un poco el test, para que compruebe que ámb
         fail_msg: Anthony only should be in sudo_with_password_users
 ```
 
-El fichero de este paso lo tienes en [05_test.yml](05_test.yml)
+El fichero de este paso lo tienes en [05_playbook.yml](05_playbook.yml)
 
 ### Conclusiones
 Cada vez esto está siendo más organizado, y casi no tenemos que repetir nada. Ánimo que ya casi hemos acabado.
@@ -584,7 +603,7 @@ Cada vez esto está siendo más organizado, y casi no tenemos que repetir nada. 
 ### Ejecución completa de este paso
 
 ```bash
-ansible-playbook 05_test.yml
+ansible-playbook 05_playbook.yml
 [WARNING]: provided hosts list is empty, only localhost is available. Note that the implicit localhost
 does not match 'all'
 
@@ -632,11 +651,34 @@ localhost                  : ok=6    changed=0    unreachable=0    failed=0    s
 
 ### Sexta ejecución
 
-En esta última ejecución, vamos a poner a abordar el caso de usuario que se usará para arrancar nuestra aplicación, ahora lo que queremos es un valor, no una lista de elementos, para eso vamos a usar un filtro que no acabará en lista, y cogeremos el primer valor positivo que nos encontremos. Vamos a ver las versiones de nuestro filtro, como siempre, con y sin jmespath.
+En esta última ejecución, vamos a poner a abordar el caso de usuario que se usará para arrancar nuestra aplicación, ahora lo que queremos es un valor, no una lista de elementos, para eso vamos a usar un filtro que no acabará en lista, y cogeremos el primer valor positivo que nos encontremos. 
+
+
+Nuestra parte de users quedaría de la siguiente manera:
+
+ ```yml
+   vars:
+    users:
+      - name: margaret
+        docker: true
+      - name: july
+        docker: true
+      - name: john
+        docker: false
+        sudo: without_password
+      - name: peter
+        sudo: without_password
+      - name: anthony
+        sudo: with_password
+      - name: mary
+        app_user: true
+ ```
+
+Vamos a ver las versiones de nuestro filtro, como siempre, con y sin jmespath.
 
 Hemos decidido que la clave para este nuestro valor será app_user y tendrá un valor booleano a verdadero.
 
-Sin jmespath
+### Filtro sin JMESPATH
 
 ```yml
     app_username: "{{ users |
@@ -646,7 +688,7 @@ Sin jmespath
                       first }}"
 ```
 
-Con jmespath
+### Filtro con JMESPATH
 
 ```yml
     jmespath_app_username: "{{ users | json_query(\"[?app_user]\") | map(attribute='name') | first }}"
@@ -663,7 +705,9 @@ Por último como siempre, modificamos los tests para ver que ámbas variables so
         fail_msg: Mary should be the user for the app
 ```
 
-Lanzamos nuestros test, y todo sale en verde, pero que pasaría si por error le pongo también a john el atributo de *app_user* a true, es decir, tendría esto en *users*
+### ¿ Realmente hemos terminado ?
+
+Lanzamos nuestros test, y todo sale en verde, pero que pasaría si por error le pongo también a john el atributo de *app_user* a true, es decir, tendría esto en *users*:
 
 ```yml
   vars:
@@ -687,7 +731,7 @@ Lanzamos nuestros test, y todo sale en verde, pero que pasaría si por error le 
 Vuelvo a lanzar y ...
 
 ```bash
-$ ansible-playbook 06_test.yml
+$ ansible-playbook 06_playbook.yml
 ...
 
 TASK [Checking that Mary is the app user in the hosts] **************************************************
@@ -702,7 +746,7 @@ PLAY RECAP *********************************************************************
 localhost                  : ok=6    changed=0    unreachable=0    failed=1    skipped=0    rescued=0    ignored=0   
 ```
 
-Nos podemos volver locos buscando donde está el fallo, porque mary está marcada como app_user, para corregir este caso, podemos poner una prueba más en los tests que nos compruebe que sólo un usuario tiene esa propiedad como *true*, vamos a ver como lo haríamos.
+Nos podemos volver locos buscando donde está el fallo, porque mary está marcada como app_user, para corregir este caso, podemos poner una prueba más en los tests que nos compruebe que sólo un usuario tiene esa propiedad como *true*, vamos a ver como lo haríamos:
 
 ```yml
     - name: Checking that Mary is the app user in the hosts
@@ -720,10 +764,10 @@ Nos podemos volver locos buscando donde está el fallo, porque mary está marcad
         fail_msg: Mary should be the user for the app
 ```
 
-Ahora cuando el test falla lo hace porque ha encontrado varios usuarios con la propiedad, lo que nos da más vistas y es más fácil de depurar
+Ahora cuando el test falla lo hace porque ha encontrado varios usuarios con esa propiedad, lo que nos da más pistas y es más fácil de depurar.
 
 ```bash
-$ ansible-playbook 06_test.yml
+$ ansible-playbook 06_playbook.yml
 ...
 TASK [Checking that Mary is the app user in the hosts] **************************************************
 fatal: [localhost]: FAILED! => {
@@ -739,11 +783,13 @@ localhost                  : ok=5    changed=0    unreachable=0    failed=1    s
 
 Corregimos el fallo y todo sale perfectamente.
 
-El fichero de este paso es [06_test.yml](06_test.yml)
+El fichero de este paso es [06_playbook.yml](06_playbook.yml)
 
 ### Conclusiones
 
-Esta última ejecución nos ha dejado nuestras variables bastante limpias y podrían terminar de la siguiente manera.
+Esta última ejecución nos ha dejado nuestras variables bastante limpias, más mantenible y gestionable en el futuro. 
+
+Nuestras variables podrían terminar de la siguiente manera:
 
 ```yml
   vars:
@@ -779,12 +825,10 @@ Esta última ejecución nos ha dejado nuestras variables bastante limpias y podr
     app_username: "{{ users | json_query(\"[?app_user]\") | map(attribute='name') | first }}"
 ```
 
-Esto es mucho más sostenible y gestionable que nuestro punto de partida.
-
 ### Ejecución completa de este paso
 
 ```bash
-ansible-playbook 06_test.yml
+ansible-playbook 06_playbook.yml
 [WARNING]: provided hosts list is empty, only localhost is available. Note that the implicit localhost
 does not match 'all'
 
@@ -829,6 +873,14 @@ PLAY RECAP *********************************************************************
 localhost                  : ok=6    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
 ```
 # Recursos para aprender ansible
+
+Buenas, evidentemente hay muchos sitios para aprender ansible, y no los conozco, te recomiendo lo que conozco
+
+
+* [Documentación de ansible](https://docs.ansible.com/)
+* [Ansible for DevOps](https://www.ansiblefordevops.com/)
+* [Ansible 101 YouTube Playlist](https://www.youtube.com/playlist?list=PL2_OBreMn7FqZkvMYt6ATmgC0KAGGJNAN)
+* [Presentación de Ansible en Español](https://docs.google.com/presentation/d/1RLjwFalGl9pz6c5wgWT6gpVv-_SXVUxH2sgR3VtUeIk/edit?usp=sharing) (auto bombo del autor)
 
 # Recursos para este artículo
 
