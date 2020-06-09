@@ -100,7 +100,20 @@ Los usuarios que pueden usar sudo con clave son:
 El usuario de nuestra aplicación es *mary*, y sólo puede existir uno. 
 
 
-# Desarrollo 
+## Software necesario
+
+Si quieres seguir el artículo e ir haciéndolo poco a poco necesitarás ansible y [jmespath](https://jmespath.org/).
+
+La instalación la puedes hacer por ejemplo mediante pip:
+
+```bash
+pip install ansible jmespath
+```
+
+JMESPath es un lenguaje de consultas para JSON que nos permite usar el filtro de JSON dentro de ansible. Realmente es bastante potente.
+
+
+# Desarrollo
 
 ## Definición de test en ansible 
 
@@ -225,7 +238,7 @@ localhost                  : ok=5    changed=0    unreachable=0    failed=0    s
 Aunque parezca que es perder el tiempo, ya tenemos bastante avanzado.
 
 
-## Primera iteración sin filtros
+## Primera iteración (sin filtros)
 
 Ahora vamos a hacer que sólo funcione de una forma muy ruda y primitiva, funciona no será nuestra versión final. La versión es exactamente igual a la anterior, pero simplemente hemos rellenado las variables, ahora tienen esta pinta:
 
@@ -380,7 +393,7 @@ Aquí es realmente donde empezamos a usar filtros, vamos a intentar extraer los 
       - name: mary
 ```
 
-Este paso vamos a hacerlo con filtros, y podemos hacerlo de dos formas distintas con [jmespath](https://jmespath.org/) (recuerda instalarlo) o sin él. 
+Este paso vamos a hacerlo con filtros, y podemos hacerlo de dos formas distintas con y sin _jmespath_ (json_query) que nos permite consultas más complejas 
 
 ### Filtro sin JMESPATH
 
@@ -400,7 +413,7 @@ El filtro básicamente de docker_users hace lo siguiente:
 ### Filtro con JMESPATH
 
 ```yml
-    jmespath_docker_users: "{{ users | json_query(\"[?docker]\") | map(attribute='name') | list }}"
+    jmespath_docker_users: "{{ users | json_query('[?docker].name') }}"
 ```
 
 ### Adaptación de los TEST
@@ -494,11 +507,23 @@ ok: [localhost] => {
 ....
 ```
 
-Estamos pasando todo los campos de users, cuando en nuestro ejemplo, sólo queremos pasar "**_name_**", igual es tu caso da igual, pero vamos a corregir "**_common_users_**" para que sólo muestre el atributo "**_name_**" como estaba originalmente. Nuestra variable quedaría así.
+Estamos pasando todo los campos de users, cuando en nuestro ejemplo, sólo queremos pasar "**_name_**", igual es tu caso da igual, pero vamos a corregir "**_common_users_**" para que sólo muestre el atributo "**_name_**" como estaba originalmente. 
+
+### Filtro sin JMESPATH
 
 ```yml
     common_users: "{{ users | map(attribute='name') | list }}"
 ```
+
+### Filtro con JMESPATH
+
+Como referencia voy a poner el filtro para hacer lo mismo con jmespath
+
+```yml
+jmespath_common_users: "{{ users | json_query('[].name') }}"
+```
+
+### Comprobaciones
 
 Volvemos a ejecutar y vemos que ya tenemos nuestro problema arreglado:
 
@@ -509,7 +534,22 @@ ok: [localhost] => {
 }
 ```
 
-Dejo como ejercicio del lector, hacer un test que compruebe esto. El fichero de este paso es [04_playbook.yml](04_playbook.yml)
+
+Voy a ampliar los tests para comprobar que **_common_users_** y **_jmespath_common_users_**
+
+```yml
+    - name: Checking common_users
+      assert:
+        that:
+          - common_users is defined
+          - common_users | length == 6
+          - common_users == jmespath_common_users
+        fail_msg: Not all the users are included
+```
+
+Lo que no está hecho, y lo dejo como ejercicio del lector, hacer un test que compruebe que "**_users_**" sólo contiene las claves que debe tener. 
+
+El fichero de este paso es [04_playbook.yml](04_playbook.yml)
 
 ### Conclusión
 
@@ -568,14 +608,10 @@ Ahora veamos el ejemplo con jmespath:
 
 ```yml
     jmespath_sudo_without_password_users: "{{ users |
-                                              json_query(\"[?sudo=='without_password']\") |
-                                              map(attribute='name') |
-                                              list }}"
+                                              json_query(\"[?sudo=='without_password'].name\") }}"
 
     jmespath_sudo_with_password_users:    "{{ users |
-                                              json_query(\"[?sudo=='with_password']\") |
-                                              map(attribute='name') |
-                                              list }}"
+                                              json_query(\"[?sudo=='with_password'].name\") }}"
 ```
 
 ### Adaptación de los TEST
@@ -657,7 +693,7 @@ localhost                  : ok=6    changed=0    unreachable=0    failed=0    s
 ```
 
 
-### Sexta iteración
+## Sexta iteración
 
 En esta última ejecución, vamos a poner a abordar el caso de usuario que se usará para arrancar nuestra aplicación, ahora lo que queremos es un valor, no una lista de elementos, para eso vamos a usar un filtro que no acabará en lista, y cogeremos el primer valor positivo que nos encontremos. 
 
@@ -699,7 +735,7 @@ Hemos decidido que la clave para este nuestro valor será app_user y tendrá un 
 ### Filtro con JMESPATH
 
 ```yml
-    jmespath_app_username: "{{ users | json_query(\"[?app_user]\") | map(attribute='name') | first }}"
+    jmespath_app_username: "{{ users | json_query(\"[?app_user].name | [0] \") }}"
 ```
 
 Por último como siempre, modificamos los tests para ver que ámbas variables son iguales
@@ -760,9 +796,7 @@ Nos podemos volver locos buscando donde está el fallo, porque mary está marcad
     - name: Checking that Mary is the app user in the hosts
       vars:
         number_of_users_with_app_username: "{{ users |
-                                               json_query(\"[?app_user]\") | 
-                                               map(attribute='name') |
-                                               list |
+                                               json_query(\"[?app_user].name\") |
                                                length }}"
       assert:
         that:
@@ -816,21 +850,15 @@ Nuestras variables podrían terminar de la siguiente manera:
       - name: mary
         app_user: true
     
-    common_users: "{{ users | map(attribute='name') | list }}"
+    common_users: "{{ users | json_query('[].name') }}"
 
-    docker_users: "{{ users | json_query(\"[?docker]\") | map(attribute='name') | list }}"
-    
-    sudo_without_password_users: "{{ users | 
-                                     json_query(\"[?sudo=='without_password']\") |
-                                     map(attribute='name') |
-                                     list }}"
+    docker_users: "{{ users | json_query('[?docker].name') }}"
 
-    sudo_with_password_users: "{{ users |
-                                  json_query(\"[?sudo=='with_password']\") |
-                                  map(attribute='name') |
-                                  list }}"
+    sudo_without_password_users: "{{ users | json_query(\"[?sudo=='without_password'].name\") }}"
 
-    app_username: "{{ users | json_query(\"[?app_user]\") | map(attribute='name') | first }}"
+    sudo_with_password_users: "{{ users | json_query(\"[?sudo=='with_password'].name\") }}"
+
+    app_username: "{{ users | json_query(\"[?app_user].name | [0] \") }}"
 ```
 
 ### Ejecución completa de este paso
@@ -880,6 +908,7 @@ ok: [localhost] => {
 PLAY RECAP **********************************************************************************************
 localhost                  : ok=6    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
 ```
+
 # Recursos para aprender ansible
 
 A continuación te expongo recursos de ansible que recomendaría:
