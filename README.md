@@ -18,11 +18,11 @@ Si no lo hacemos así, nuestro amigo [Borat](https://twitter.com/devops_borat) v
 
 # Metodología 
 
-[Abraham Lincoln](https://es.wikipedia.org/wiki/Abraham_Lincoln) tiene la siguiente frase famosa:
+[Abraham Lincoln](https://es.wikipedia.org/wiki/Abraham_Lincoln) dijo:
 
 > _Si dispusiera de ocho horas para cortar un árbol, emplearía seis en afilar el hacha._
 
-Y vamos a seguir esa filosofía, primero pasaremos a definir las condiciones que debemos cumplir, y después pasaremos a la acción. Así, si se nos complica la cosa, siempre tendremos claro cuales son nuestros objetivos. 
+Vamos a seguir esa filosofía, primero pasaremos a definir las condiciones que debemos cumplir, y después pasaremos a la acción. Así, si se nos complica la cosa, siempre tendremos claro cuales son nuestros objetivos. 
 
 Además intenteremos hacerlo todo con pasitos pequeños (baby steps) para no perder detalle.
 
