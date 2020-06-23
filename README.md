@@ -24,7 +24,8 @@ Si no lo hacemos así, nuestro amigo [Borat](https://twitter.com/devops_borat) v
 
 Vamos a seguir esa filosofía, primero definimos nuestro estado final, y después pasaremos a la acción. Así, si se nos complica la cosa, siempre tendremos claro cuales son nuestros objetivos. 
 
-Además intenteremos hacerlo todo con pasitos pequeños (baby steps) para no perder detalle.
+
+Para que sea más comprensible el proceso, que es realmente lo interesante, vamos a ir haciendo pequeñas iteraciones (baby steps). ¿ Empezamos ?
 
 # Punto de partida 
 
