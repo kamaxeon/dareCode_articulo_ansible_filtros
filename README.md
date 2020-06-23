@@ -12,13 +12,17 @@ Para esto, vamos a poner un ejemplo de organización de variables en nuestro de 
 
 No olvidemos que nuestra automatización debe ser lo más descriptiva y clara posible, recuerda que "_un gran poder conlleva una gran responsabilidad_". 
 
-Sino lo hacemos así, nuestro amigo [Borat](https://twitter.com/devops_borat) vendrá tarde o temprano a visitarnos y nos contará algo como ..
+Si no lo hacemos así, nuestro amigo [Borat](https://twitter.com/devops_borat) vendrá tarde o temprano a visitarnos y nos contará algo como ..
 
 ![Tweet DevOps Borat](img/borat_twitter.png)
 
 # Metodología 
 
-Vamos a intentar definir una serie de precondiciones descritas lo más parecido en lenguaje natural, de manera que sea muy descriptivo para nosotros y nos valga como punto de partida. Así, si se nos complica la cosa, siempre tendremos claro cuales son nuestros objetivos. 
+[Abraham Lincoln](https://es.wikipedia.org/wiki/Abraham_Lincoln) tiene la siguiente frase famosa:
+
+> _Si dispusiera de ocho horas para cortar un árbol, emplearía seis en afilar el hacha._
+
+Y vamos a seguir esa filosofía, primero pasaremos a definir las condiciones que debemos cumplir, y después pasaremos a la acción. Así, si se nos complica la cosa, siempre tendremos claro cuales son nuestros objetivos. 
 
 Además intenteremos hacerlo todo con pasitos pequeños (baby steps) para no perder detalle.
 
@@ -313,7 +317,7 @@ localhost                  : ok=5    changed=0    unreachable=0    failed=0    s
 
 ## Segunda iteración
 
-Ahora que tengo funcionando me planteo si toda esta parte que hace referencia a usuarios, no podría en un único sitio y después ir explotando esa información. Como quiero dar pasos pequeños iré de los más fáciles a los más complicados. En este caso, lo más fácil es crearme una estructura users copiando como user y después referenciándolo. Aunque suene un poco raro, verás que es muy fácil.
+Ahora que tengo funcionando me planteo si toda esta parte que hace referencia a usuarios, no podría en un único sitio y después ir explotando esa información. Como quiero dar pasos pequeños iré de los más sencillos a los más complicados. En este caso, lo más asequible es crearme una estructura users copiando como user y después referenciándolo. Aunque suene un poco raro, verás que es muy fácil.
 
 ```yml
     users:
@@ -418,7 +422,7 @@ El filtro básicamente de docker_users hace lo siguiente:
 
 ### Adaptación de los TEST
 
-En este caso, vemos como ha quedado más claro con jmespath, pero lo importante es que el resultado sea el mismo. Como puede observar lo que extraigo con jmespath le puesto el prefijo jmespath, por lo que ahora debo modificar los tests para que comprueben ámbas variables.
+En este caso, vemos como ha quedado más claro con jmespath, pero lo importante es que el resultado sea el mismo. Como puedes observar lo que extraigo con jmespath le puesto el prefijo jmespath, por lo que ahora debo modificar los tests para que comprueben ámbas variables.
 
 El test quedaría de la siguiente manera:
 
@@ -642,7 +646,7 @@ Ahora sólo nos quedaría modificar un poco el test, para que compruebe que las 
 El fichero de este paso lo tienes en [05_playbook.yml](05_playbook.yml)
 
 ### Conclusiones
-Cada vez esto está siendo más organizado, y casi no tenemos que repetir nada. Ánimo que ya casi hemos acabado.
+Esto está quedando mucho más organizado, y casi no tenemos que repetir nada. Ánimo que ya casi hemos acabado.
 
 ### Ejecución completa de este paso
 

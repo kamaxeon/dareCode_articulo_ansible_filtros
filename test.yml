@@ -1,0 +1,72 @@
+# https://stackoverflow.com/questions/57858362/ansible-how-to-use-selectattr-with-yaml-of-different-keys
+# https://stackoverflow.com/questions/41581273/search-dictionary-values-in-ansible
+# https://gist.github.com/halberom/3659c98073efcabd91ed1dec3ad63fa3
+# https://stackoverflow.com/questions/54334751/ansible-selectattr-map-list-returns-empty-result
+# https://oznetnerd.com/2017/04/18/jinja2-selectattr-filter/
+---
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    cdv_users:
+      - name: juan
+        sudo: no
+        compose_user: true
+      - name: pedro
+        docker: false
+        sudo: no
+      - name: antonio
+        sudo: with_password
+      - name: paco
+        docker: true
+        sudo: with_password
+      - name: jesus
+        sudo: without_password
+      - name: dani
+        docker: true
+        sudo: without_password
+      - name: carlos
+        docker: false
+      - name: miguel
+        docker: false
+        compose_user: true
+    cdv_proxy:
+      http: http://proxytar:8080
+      https: http://proxytar:8080
+
+  tasks:
+    - name: Filter all the users with sudo
+      debug:
+        # msg: "{{ cdv_users | json_query(\"[?sudo]\") | map(attribute='name') | list }}" using jmespath
+        msg: "{{ cdv_users | selectattr('sudo', 'defined') | map(attribute='name') | list }}"
+
+    - name: Filter all the users with sudo with_password
+      debug:
+        # msg: "{{ cdv_users | json_query(\"[?sudo=='with_password']\") | map(attribute='name') | list }}" # using jmespath
+        msg: "{{ cdv_users | selectattr('sudo', 'defined') | selectattr('sudo', 'equalto', 'with_password') | map(attribute='name') | list }}"
+
+    - name: Filter all the users with sudo without_password
+      debug:
+        # msg: "{{ cdv_users | json_query(\"[?sudo=='without_password']\") | map(attribute='name') | list }}" # using jmespath
+        msg: "{{ cdv_users | selectattr('sudo', 'defined') | selectattr('sudo', 'equalto', 'without_password') | map(attribute='name') | list }}"
+
+    - name: Filter all the users without sudo property
+      debug:
+        msg: "{{ cdv_users | selectattr('sudo', 'undefined') | map(attribute='name') | list }}"
+
+
+    - name: Filter all the users allowed to use docker
+      debug:
+        msg: "{{ cdv_users | selectattr('docker', 'defined') | selectattr('docker', 'equalto', True) | map(attribute='name') | list }}"
+
+    - name: Filter all the users not allowed to use docker
+      debug:
+        msg: "{{ cdv_users | json_query(\"[?docker!=true]\") | map(attribute='name') | list }}"  # noqa 601
+
+    - name: Get http proxy value
+      debug:
+        msg: "{{ cdv_proxy.http }}"
+
+    - name: Get the first compose user
+      debug:
+        msg: "{{ cdv_users | selectattr('compose_user', 'defined') | selectattr('compose_user', 'equalto', True) | map(attribute='name') | first }}"
