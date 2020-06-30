@@ -1,3 +1,7 @@
+# DISCLAIMER
+
+Este es el borrador del artículo publicado en: https://darecode.com/blog/como-controlar-repositorio-ansible-con-filtros/
+
 # Introducción 
 
 Hola y bienvenido a este primer artículo donde hablaré un poco de ansible. [Ansible](https://www.ansible.com/) es una herramienta de gestión de la configuración y orquestación desarrollado en [python](https://www.python.org/) comprada hace un tiempo por [RedHat](https://www.redhat.com/).  
